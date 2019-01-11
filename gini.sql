@@ -47,5 +47,33 @@ daily_balances as (
     from daily_balances_with_gaps
     join calendar on daily_balances_with_gaps.date <= calendar.date and calendar.date < daily_balances_with_gaps.next_date
     where balance > 1
+),
+address_counts as (
+    select
+        date,
+        count(*) as address_count
+    from
+        daily_balances
+    group by date
+),
+daily_balances_sampled as (
+    select address, daily_balances.date, balance
+    from daily_balances
+    join address_counts on daily_balances.date = address_counts.date
+    where mod(abs(farm_fingerprint(address)), 100000000)/100000000 <= safe_divide(10000, address_count)
 )
-select * from dail_balances limit 10;
+,ranked_daily_balances as (
+    select
+        date,
+        balance,
+        row_number() over (partition by date order by balance desc) as rank
+    from daily_balances_sampled
+)
+select
+    date,
+    -- (1 − 2B) https://en.wikipedia.org/wiki/Gini_coefficient
+    1 - 2 * sum((balance * (rank - 1) + balance / 2)) / count(*) / sum(balance) as gini
+from ranked_daily_balances
+group by date
+having sum(balance) > 0
+order by date asc;
