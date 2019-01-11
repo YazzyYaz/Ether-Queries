@@ -30,5 +30,22 @@ double_entry_book_by_date as (
         sum(value * 0.00000001) as value
     from double_entry_book
     group by address, date
+),
+daily_balances_with_gaps as (
+    select
+        address,
+        date,
+        sum(value) over (partition by address order by date) as balance,
+        lead(date, 1, current_date()) over (partition by address order by date) as next_date
+        from double_entry_book_by_date
+),
+calendar as (
+    select date from unnest(generate_date_array('2015-07-30', current_date())) as date
+),
+daily_balances as (
+    select address, calendar.date, balance
+    from daily_balances_with_gaps
+    join calendar on daily_balances_with_gaps.date <= calendar.date and calendar.date < daily_balances_with_gaps.next_date
+    where balance > 1
 )
-select * from double_entry_book_by_date limit 10;
+select * from dail_balances limit 10;
