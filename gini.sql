@@ -22,4 +22,13 @@ with double_entry_book as (
     -- transaction fees credits
     select from_address as address, -(cast(receipt_gas_used as numeric) * cast(gas_price as numeric)) as value, block_timestamp
     from `bigquery-public-data.ethereum_blockchain.transactions`
-) select * from double_entry_book limit 10;
+),
+double_entry_book_by_date as (
+  select 
+        date(block_timestamp) as date, 
+        address, 
+        sum(value * 0.00000001) as value
+    from double_entry_book
+    group by address, date
+)
+select * from double_entry_book_by_date limit 10;
