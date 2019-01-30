@@ -38,7 +38,7 @@ daily_rewards AS (
 ),
 supply AS (
   SELECT date,
-    SUM(block_rewards) AS rewards
+    SUM(block_rewards) AS total_rewards
   FROM daily_rewards
   GROUP BY date
 ),
@@ -48,7 +48,7 @@ ranked_daily_rewards AS (
     ROW_NUMBER() OVER (PARTITION BY daily_rewards.date ORDER BY block_rewards DESC) AS rank
   FROM daily_rewards
   JOIN supply ON daily_rewards.date = supply.date
-    WHERE SAFE_DIVIDE(block_rewards, rewards) >= 0.01
+  WHERE SAFE_DIVIDE(block_rewards, total_rewards) >= 0.01
   ORDER BY block_rewards DESC
 ),
 daily_gini AS (
