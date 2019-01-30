@@ -1,6 +1,11 @@
+#standardSQL
+-- MIT License
+-- Copyright (c) 2019 Yaz Khoury, yaz.khoury@gmail.com
+
+
 WITH mined_block AS (
   SELECT miner, DATE(timestamp)
-  FROM `crypto-etl-ethereum-dev.ethereum_classic_blockchain.blocks` 
+  FROM `bigquery-public-data.ethereum_classic_blockchain.blocks` 
   WHERE DATE(timestamp) > DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)
   ORDER BY miner ASC)
 SELECT miner, COUNT(miner) AS total_block_reward 
