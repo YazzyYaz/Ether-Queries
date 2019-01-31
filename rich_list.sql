@@ -31,4 +31,4 @@ sum(value) / 1000000000 as balance
 from double_entry_book
 group by address
 order by balance desc
-limit 100000
+limit 20 
