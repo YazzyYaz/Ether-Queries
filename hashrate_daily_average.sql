@@ -1,7 +1,7 @@
 WITH avg_difficulty AS (
 SELECT TIMESTAMP_TRUNC(timestamp, DAY) AS block_day,
 AVG(difficulty) AS difficulty
-FROM `crypto-etl-ethereum-dev.classic_blockchain.blocks`
+FROM `bigquery-public-data.crypto_ethereum_classic.blocks`
 GROUP BY TIMESTAMP_TRUNC(timestamp, DAY)
 )
 SELECT block_day, 

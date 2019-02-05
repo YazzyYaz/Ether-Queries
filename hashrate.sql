@@ -1,6 +1,6 @@
 WITH block_rows AS (
   SELECT *, ROW_NUMBER() OVER (ORDER BY timestamp) AS rn
-  FROM `crypto-etl-ethereum-dev.ethereum_classic_blockchain.blocks`
+  FROM `bigquery-public-data.crypto_ethereum_classic.blocks`
 )
 SELECT mp.timestamp AS block_time, 
 TIMESTAMP_DIFF(mp.timestamp, mc.timestamp, SECOND) AS time_elapsed,
